@@ -1,0 +1,8 @@
+extends ../blocks/layout-default/layout-default
+include ../blocks/some-element/some-element
+
+block head
+    - var pageTitle = 'Index Page';
+
+block content
+    +some-element()
