@@ -1,5 +1,4 @@
 include ../../../node_modules/bemto.pug/bemto
-include ../scripts/scripts
 
 doctype html
 html(lang='ru')
@@ -9,9 +8,9 @@ html(lang='ru')
 		meta(http-equiv='X-UA-Compatible' content='IE=edge')
 
 		block head
-		title = pageTitle || ''
+		title= pageTitle || ''
 
-		link(href='/assets/css/style.min.css' rel='stylesheet')
+		link(href='assets/css/style.css' rel='stylesheet')
 	body
 		block content
-		+scripts(['app.min.js'])
+		script(src='assets/js/script.js')

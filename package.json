@@ -1,9 +1,10 @@
 {
-  "name": "todoTest",
+  "name": "boilerplate",
   "version": "1.0.0",
   "main": "gulpfile.js",
   "scripts": {
-    "make-block": "babel-node make-block.js"
+    "make-block": "babel-node make-block.js",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,8 @@
     "gulp-pug": "^4.0.1",
     "gulp-pug-beautify": "0.0.1",
     "gulp-sass": "^4.0.1",
-    "gulp-sourcemaps": "^2.6.4"
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0"
   },
   "dependencies": {},
   "description": ""

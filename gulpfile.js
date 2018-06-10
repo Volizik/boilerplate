@@ -9,41 +9,71 @@ const gulp = require('gulp'),
     plumber = require('gulp-plumber'),
     sourcemaps = require('gulp-sourcemaps'),
     gulpPugBeautify = require('gulp-pug-beautify'),
-    autoprefixer = require('gulp-autoprefixer');
+    autoprefixer = require('gulp-autoprefixer'),
+    uglify = require('gulp-uglify');
 
 
 gulp.task('pug', function () {
     return gulp.src('./src/pages/*.pug')
         .pipe(plumber())
         .pipe(pug({pretty: true}))
-        .pipe(pug())
         .pipe(gulpPugBeautify({omit_empty: false}))
         .pipe(gulp.dest('./dist'));
 });
-
 gulp.task('css', function () {
-    gulp.src(['./src/shared/styles/*.sass', './src/blocks/**/*.sass'])
+    gulp.src(['./src/shared/sass/**/*.sass', './src/components/**/*.sass'])
         .pipe(plumber())
         .pipe(sourcemaps.init())
-        .pipe(sass({outputStyle: 'compressed'}))
-        .pipe(concat('style.min.css'))
+        .pipe(sass())
+        .pipe(concat('style.css'))
         .pipe(sourcemaps.write())
         .pipe(autoprefixer({
             browsers: ['> 1%', 'last 5 versions', 'Android >= 3', 'Firefox ESR', 'Opera 12.1']
         }))
         .pipe(gulp.dest('./dist/assets/css'));
 });
-
 gulp.task('js', function () {
-    gulp.src('src/pages/**/*.js')
+    gulp.src(['./src/shared/js/**/*.js', './src/components/**/*.js'])
         .pipe(plumber())
         .pipe(sourcemaps.init())
+        .pipe(concat('script.js'))
         .pipe(babel({
             presets: ['env']
         }))
-        .pipe(concat('script.js'))
         .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('dist/assets/js'))
+        .pipe(gulp.dest('./dist/assets/js'))
+});
+
+gulp.task('pug-build', function () {
+    return gulp.src('./src/pages/*.pug')
+        .pipe(plumber())
+        .pipe(pug({pretty: true}))
+        .pipe(gulpPugBeautify({omit_empty: false}))
+        .pipe(gulp.dest('./build'));
+});
+gulp.task('css-build', function () {
+    gulp.src(['./src/shared/sass/**/*.sass', './src/components/**/*.sass'])
+        .pipe(plumber())
+        .pipe(sourcemaps.init())
+        .pipe(sass({outputStyle: 'compressed'}))
+        .pipe(concat('style.css'))
+        .pipe(sourcemaps.write())
+        .pipe(autoprefixer({
+            browsers: ['> 1%', 'last 5 versions', 'Android >= 3', 'Firefox ESR', 'Opera 12.1']
+        }))
+        .pipe(gulp.dest('./build/assets/css'));
+});
+gulp.task('js-build', function () {
+    gulp.src(['./src/shared/js/**/*.js', './src/components/**/*.js'])
+        .pipe(plumber())
+        .pipe(sourcemaps.init())
+        .pipe(concat('script.js'))
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(uglify())
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest('./build/assets/js'))
 });
 
 gulp.task('browser-sync', function () {
@@ -51,18 +81,18 @@ gulp.task('browser-sync', function () {
         server: {
             baseDir: "./dist"
         },
-        tunnel: true,
+        open: false,
+        tunnel: false,
         host: 'localhost',
         port: 9000,
         logPrefix: "Craft Group"
     });
 });
-
 gulp.task('watch', ['pug', 'css', 'js'], function () {
 
-    gulp.watch('./src/blocks/**/*.pug', ['pug']);
-    gulp.watch('./src/blocks/**/*.sass', ['css']);
-    gulp.watch('./src/blocks/**/*.js', ['js']);
+    gulp.watch(['./src/components/**/*.pug'], ['pug']);
+    gulp.watch(['./src/components/**/*.sass', './src/shared/sass/**/*.sass'], ['css']);
+    gulp.watch(['./src/components/**/*.js', './src/shared/js/**/*.js'], ['js']);
 
     gulp.watch('./dist/assets/js/*.js').on('change', browserSync.reload);
     gulp.watch('./dist/assets/css/*.css').on('change', browserSync.reload);
@@ -70,4 +100,5 @@ gulp.task('watch', ['pug', 'css', 'js'], function () {
 
 });
 
+gulp.task('build', ['pug-build', 'css-build', 'js-build']);
 gulp.task('default', ['watch', 'browser-sync']);
