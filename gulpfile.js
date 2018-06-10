@@ -10,9 +10,10 @@ const gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     gulpPugBeautify = require('gulp-pug-beautify'),
     autoprefixer = require('gulp-autoprefixer'),
-    uglify = require('gulp-uglify');
+    uglify = require('gulp-uglify'),
+    imagemin = require('gulp-imagemin');
 
-
+// For developing
 gulp.task('pug', function () {
     return gulp.src('./src/pages/*.pug')
         .pipe(plumber())
@@ -43,7 +44,42 @@ gulp.task('js', function () {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/assets/js'))
 });
+gulp.task('libs', function () {
+    return gulp.src('./src/libs/**/*')
+        .pipe(gulp.dest('./dist/assets/libs'))
+        .pipe(browserSync.reload({
+            stream: true
+        }));
+});
+gulp.task('images', function () {
+    return gulp.src('./src/images/**/*')
+        .pipe(gulp.dest('./dist/assets/images'));
+});
+gulp.task('browser-sync', function () {
+    browserSync.init({
+        server: {
+            baseDir: "./dist"
+        },
+        open: false,
+        tunnel: false,
+        host: 'localhost',
+        port: 9000,
+        logPrefix: "Craft Group"
+    });
+});
+gulp.task('watch', ['pug', 'css', 'js'], function () {
 
+    gulp.watch(['./src/components/**/*.pug'], ['pug']);
+    gulp.watch(['./src/components/**/*.sass', './src/shared/sass/**/*.sass'], ['css']);
+    gulp.watch(['./src/components/**/*.js', './src/shared/js/**/*.js'], ['js']);
+
+    gulp.watch('./dist/assets/js/*.js').on('change', browserSync.reload);
+    gulp.watch('./dist/assets/css/*.css').on('change', browserSync.reload);
+    gulp.watch('./dist/*.html').on('change', browserSync.reload);
+
+});
+
+// For building
 gulp.task('pug-build', function () {
     return gulp.src('./src/pages/*.pug')
         .pipe(plumber())
@@ -75,30 +111,16 @@ gulp.task('js-build', function () {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('./build/assets/js'))
 });
-
-gulp.task('browser-sync', function () {
-    browserSync.init({
-        server: {
-            baseDir: "./dist"
-        },
-        open: false,
-        tunnel: false,
-        host: 'localhost',
-        port: 9000,
-        logPrefix: "Craft Group"
-    });
+gulp.task('libs-build', function () {
+    return gulp.src('./src/libs/**/*')
+        .pipe(gulp.dest('./build/assets/libs'));
 });
-gulp.task('watch', ['pug', 'css', 'js'], function () {
-
-    gulp.watch(['./src/components/**/*.pug'], ['pug']);
-    gulp.watch(['./src/components/**/*.sass', './src/shared/sass/**/*.sass'], ['css']);
-    gulp.watch(['./src/components/**/*.js', './src/shared/js/**/*.js'], ['js']);
-
-    gulp.watch('./dist/assets/js/*.js').on('change', browserSync.reload);
-    gulp.watch('./dist/assets/css/*.css').on('change', browserSync.reload);
-    gulp.watch('./dist/*.html').on('change', browserSync.reload);
-
+gulp.task('images-build', function () {
+    return gulp.src('./src/images/**/*')
+        .pipe(imagemin())
+        .pipe(gulp.dest('./build/assets/images'));
 });
 
-gulp.task('build', ['pug-build', 'css-build', 'js-build']);
-gulp.task('default', ['watch', 'browser-sync']);
+// Commands
+gulp.task('build', ['pug-build', 'css-build', 'js-build', 'libs-build', 'images-build']);
+gulp.task('default', ['watch', 'libs', 'images', 'browser-sync']);
